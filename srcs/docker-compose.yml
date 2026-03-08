@@ -1,75 +1,64 @@
 services:
 
   mariadb:
-    build: requirements/mariadb
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
     container_name: mariadb
-    restart: always
-    env_file:
-      - .env
-    secrets:
-      - db_root_password
-      - db_password
+    image: mariadb
+    env_file: .env
     volumes:
-      - wp_db:/var/lib/mysql
+      - mariadb:/var/lib/mysql
     networks:
       - inception
+    restart: always
 
   wordpress:
-    build: requirements/wordpress
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
     container_name: wordpress
-    restart: always
-    depends_on:
-      - mariadb
-    env_file:
-      - .env
-    secrets:
-      - db_password
-      - wp_admin_password
-      - wp_user_password
+    image: wordpress
+    env_file: .env
     volumes:
-      - wp_files:/var/www/html
+      - wordpress:/var/www/html
     networks:
       - inception
+    depends_on:
+      - mariadb
+    restart: always
 
   nginx:
-    build: requirements/nginx
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
     container_name: nginx
-    restart: always
-    depends_on:
-      - wordpress
+    image: nginx
     ports:
       - "443:443"
     volumes:
-      - wp_files:/var/www/html
+      - wordpress:/var/www/html
     networks:
       - inception
+    depends_on:
+      - wordpress
+    restart: always
 
 volumes:
-  wp_db:
+  mariadb:
     driver: local
     driver_opts:
       type: none
-      device: /home/achanek/data/db
       o: bind
+      device: /home/achanek/data/mariadb
 
-  wp_files:
+  wordpress:
     driver: local
     driver_opts:
       type: none
-      device: /home/achanek/data/wp
       o: bind
+      device: /home/achanek/data/wordpress
 
 networks:
   inception:
     driver: bridge
-
-secrets:
-  db_root_password:
-    file: ./secrets/db_root_password.txt 
-  db_password:
-    file: ./secrets/db_password.txt  
-  wp_admin_password:
-    file: ./secrets/wp_admin_password.txt
-  wp_user_password:
-    file: ./secrets/wp_user_password.txt
-

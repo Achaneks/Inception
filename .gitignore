@@ -1,0 +1,10 @@
+# Never commit credentials
+srcs/.env
+secrets/
+
+# Never commit data directories
+data/
+
+# OS files
+.DS_Store
+Thumbs.db
