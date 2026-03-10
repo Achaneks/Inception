@@ -14,16 +14,13 @@ RUN apt-get update && apt-get install -y \
     default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Install WP-CLI
 RUN wget -q https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
     && chmod +x wp-cli.phar \
     && mv wp-cli.phar /usr/local/bin/wp
 
-# Download WordPress into a STAGING directory (not /var/www/html)
-# At runtime, the setup script copies from here into the volume
+
 RUN wp core download --path=/usr/src/wordpress --allow-root
 
-# Make sure PHP-FPM run dir exists
 RUN mkdir -p /run/php
 
 COPY tools/setup_wp.sh /setup_wp.sh
