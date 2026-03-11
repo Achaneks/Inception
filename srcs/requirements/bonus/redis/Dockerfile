@@ -8,5 +8,4 @@ COPY conf/redis.conf /etc/redis/redis.conf
 
 EXPOSE 6379
 
-# Run redis with our config in foreground
 CMD ["redis-server", "/etc/redis/redis.conf"]
