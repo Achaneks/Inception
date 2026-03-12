@@ -78,7 +78,7 @@ cat srcs/.env
 
 > ⚠️ Never commit `srcs/.env` to Git. It is listed in `.gitignore`.
 
-### Create the `.env` file
+### Create the `.env`  in `srcs`
 
 Copy and paste this entire .env:
 ```bash
