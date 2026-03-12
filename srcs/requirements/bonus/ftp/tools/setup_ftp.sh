@@ -1,28 +1,23 @@
 #!/bin/bash
-set -e
 
-# Wait until WordPress has populated the volume
-echo "[FTP] Waiting for WordPress files..."
-until [ -f /var/www/html/wp-login.php ]; do
+# Wait for wordpress volume to be populated
+while [ ! -f /var/www/html/wp-config.php ]; do
     sleep 2
 done
-echo "[FTP] WordPress files found!"
 
-# Create FTP user only if it doesn't exist
-if ! id "${FTP_USER}" &>/dev/null; then
-    echo "[FTP] Creating user ${FTP_USER}..."
-    # Home = /var/www/html, no separate home folder
-    useradd -d /var/www/html -M -s /bin/bash "${FTP_USER}"
-    echo "${FTP_USER}:${FTP_PASSWORD}" | chpasswd
+# Create www-data group if not exists
+groupadd -f -g 33 www-data 2>/dev/null || true
+
+# Create FTP user and add to www-data group
+if ! id -u "$FTP_USER" > /dev/null 2>&1; then
+    useradd -m -g www-data -d /var/www/html "$FTP_USER"
+    echo "$FTP_USER:$FTP_PASSWORD" | chpasswd
 fi
 
-# Add FTP user to www-data group so it can write to www-data owned files
-usermod -aG www-data "${FTP_USER}"
+mkdir -p /var/run/vsftpd/empty
 
-# Set group write permissions on the WordPress directory
-# www-data owns it (WordPress needs this), but group members can also write
+# Ensure FTP user has write permissions
+chown -R www-data:www-data /var/www/html
 chmod -R g+w /var/www/html
-find /var/www/html -type d -exec chmod g+s {} \;
 
-echo "[FTP] Starting vsftpd..."
-exec vsftpd /etc/vsftpd.conf
+exec /usr/sbin/vsftpd /etc/vsftpd.conf

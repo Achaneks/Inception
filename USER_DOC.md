@@ -2,66 +2,136 @@
 
 ## What Services Are Running?
 
-| Service | Role | Access |
+The Inception stack provides the following services:
+
+| Service | Role | How to Access |
 |---|---|---|
-| **NGINX** | Web server + HTTPS | Port 443 (only entry point) |
-| **WordPress** | Website / CMS | Via `https://login.42.fr` |
-| **MariaDB** | Database | Internal only (no external port) |
+| **NGINX** | HTTPS entry point, reverse proxy | Port 443 only |
+| **WordPress** | Website and content management system | https://achanek.42.fr |
+| **MariaDB** | Relational database | Internal only (not accessible from outside) |
+| **Redis** | Object cache for WordPress speed | Internal only |
+| **FTP (vsftpd)** | File access to WordPress volume | ftp://127.0.0.1 port 21 |
+| **Adminer** | Web-based database management UI | https://achanek.42.fr/adminer/ |
+| **Portfolio** | Static personal website | https://achanek.42.fr/portfolio/ |
+| **Grafana** | Monitoring dashboard | https://achanek.42.fr/grafana/ |
 
 ---
 
-## Start and Stop the Stack
+## Start and Stop the Project
 
 ```bash
-# Start everything (build if needed)
+# Start everything (builds images if needed)
 make
 
-# Stop all containers
+# Stop all containers (data is preserved)
 make down
 
-# Restart and rebuild
+# Restart everything
 make re
+
+# Full cleanup — removes containers, images, and all data
+make fclean
 ```
+
+Wait **60–90 seconds** after `make` before opening the browser — WordPress installs itself automatically on first startup.
 
 ---
 
 ## Access the Website
 
-1. Make sure `/etc/hosts` contains: `127.0.0.1 login.42.fr`
-2. Open your browser and go to: `https://login.42.fr`
-3. Click **Advanced → Accept the risk** (self-signed certificate warning is normal)
-4. The WordPress website will load
+**Before first use**, make sure this line is in `/etc/hosts`:
+```
+127.0.0.1 achanek.42.fr
+```
 
-**Admin panel**: `https://login.42.fr/wp-admin`
-- Login with the admin credentials from `srcs/.env`
+Add it if missing:
+```bash
+echo "127.0.0.1 achanek.42.fr" | sudo tee -a /etc/hosts
+```
+
+Open your browser and go to `https://achanek.42.fr`.
+
+You will see a **certificate warning** — this is normal and expected because we use a self-signed SSL certificate. Click **Advanced → Accept Risk and Continue**.
+
+**WordPress admin panel:** `https://achanek.42.fr/wp-admin`
+
+Log in with the admin credentials from `srcs/.env` (`WP_ADMIN_USER` / `WP_ADMIN_PASSWORD`).
 
 ---
 
-## Manage Credentials
+## Locate and Manage Credentials
 
-All credentials are stored in `srcs/.env`. Open it to find:
-- `WP_ADMIN_USER` / `WP_ADMIN_PASSWORD` — WordPress admin login
-- `WP_USER` / `WP_USER_PASSWORD` — Regular editor login
-- `MYSQL_USER` / `MYSQL_PASSWORD` — WordPress database user
-- `MYSQL_ROOT_PASSWORD` — MariaDB root password
+All credentials are stored in `srcs/.env`:
 
-> ⚠️ Never commit `srcs/.env` to Git. It is in `.gitignore`.
+```bash
+cat srcs/.env
+```
+
+| Credential | Variable | Used For |
+|---|---|---|
+| WordPress admin login | `WP_ADMIN_USER` / `WP_ADMIN_PASSWORD` | wp-admin panel |
+| WordPress editor login | `WP_USER` / `WP_USER_PASSWORD` | Regular site login |
+| Database user | `MYSQL_USER` / `MYSQL_PASSWORD` | WordPress ↔ MariaDB |
+| Database root | `MYSQL_ROOT_PASSWORD` | Direct MariaDB access |
+| FTP login | `FTP_USER` / `FTP_PASSWORD` | FTP file access |
+| Grafana login | `admin` / `grafanapass123` | Grafana dashboard |
+
+> ⚠️ Never commit `srcs/.env` to Git. It is listed in `.gitignore`.
 
 ---
 
 ## Check That Services Are Running
 
 ```bash
-# See all running containers and their status
-make status
+# See all containers and their status
+docker ps
 
-# Follow live logs from all services
-make logs
+# All 8 containers should show "Up":
+# nginx, wordpress, mariadb, redis, ftp, adminer, website, grafana
+```
 
-# Check a specific service
+Check individual service logs:
+```bash
 docker logs nginx
 docker logs wordpress
 docker logs mariadb
+docker logs redis
+docker logs ftp
 ```
 
-All three containers should show status `Up`.
+Check Redis cache is connected:
+```bash
+docker exec wordpress wp redis status --allow-root --path=/var/www/html
+# Expected: Status: Connected
+```
+
+Check the website responds:
+```bash
+curl -k https://achanek.42.fr | head -5
+# Expected: HTML starting with <!DOCTYPE html>
+```
+
+---
+
+## Access Bonus Services
+
+**Adminer** (database UI): `https://achanek.42.fr/adminer/`
+- System: MySQL
+- Server: `mariadb`
+- Username: `wpuser`
+- Password: from `MYSQL_PASSWORD` in `.env`
+- Database: `wordpress`
+
+**FTP** (file access to WordPress):
+```bash
+ftp 127.0.0.1
+# Username: ftpuser (FTP_USER from .env)
+# Password: ftppass123 (FTP_PASSWORD from .env)
+```
+
+**Grafana** (monitoring): `https://achanek.42.fr/grafana/`
+- Username: `admin`
+- Password: `grafanapass123`
+
+**Portfolio**: `https://achanek.42.fr/portfolio/`
+- No login required — static page

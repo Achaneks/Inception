@@ -73,6 +73,8 @@ services:
       - wordpress:/var/www/html
     networks:
       - inception
+    depends_on:
+      - wordpress
     restart: always
 
   adminer:
@@ -81,6 +83,8 @@ services:
       dockerfile: Dockerfile
     container_name: adminer
     image: adminer
+    ports:
+      - "9001:9001"
     networks:
       - inception
     depends_on:

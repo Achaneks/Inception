@@ -4,7 +4,6 @@ set -e
 DATA_DIR="/var/lib/mysql"
 INIT_MARKER="$DATA_DIR/.inception_init_done"
 
-# ── First run only: initialize DB and create WordPress user ──
 if [ ! -f "$INIT_MARKER" ]; then
 
     echo "[MariaDB] Initializing data directory..."
@@ -25,12 +24,9 @@ if [ ! -f "$INIT_MARKER" ]; then
     MYSQL_PID=$!
 
     # Wait until the socket is ready
-    echo "[MariaDB] Waiting for temp server..."
     until mysqladmin --socket=/tmp/mysql_setup.sock ping --silent 2>/dev/null; do
         sleep 1
     done
-
-    echo "[MariaDB] Running setup SQL..."
 
     mysql --socket=/tmp/mysql_setup.sock -u root << EOF
     CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
@@ -49,7 +45,6 @@ EOF
     touch "$INIT_MARKER"
 fi
 
-echo "[MariaDB] Starting MariaDB in foreground on port 3306..."
 exec mysqld --user=mysql \
             --datadir="$DATA_DIR" \
             --bind-address=0.0.0.0 \

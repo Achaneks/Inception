@@ -4,10 +4,8 @@ RUN apt-get update && apt-get install -y \
     nginx \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy our static website files
 COPY html/ /var/www/static/
 
-# Simple nginx config to serve the static site
 RUN echo 'server { \
     listen 8080; \
     root /var/www/static; \

@@ -1,5 +1,5 @@
 # Never commit credentials
-# srcs/.env
+srcs/.env
 secrets/
 
 # Never commit data directories
