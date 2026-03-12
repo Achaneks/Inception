@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-echo "[Grafana] Starting Grafana server..."
 exec /usr/sbin/grafana-server \
     --config=/etc/grafana/grafana.ini \
     --homepath=/usr/share/grafana \

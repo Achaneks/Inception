@@ -78,6 +78,47 @@ cat srcs/.env
 
 > ⚠️ Never commit `srcs/.env` to Git. It is listed in `.gitignore`.
 
+### Create the `.env` file
+
+Copy and paste this entire .env:
+```bash
+# ─── Domain ────────────────────────────────────────────────
+DOMAIN_NAME=achanek.42.fr
+
+# ─── MariaDB ───────────────────────────────────────────────
+MYSQL_DATABASE=wordpress
+MYSQL_USER=wpuser
+MYSQL_PASSWORD=wppassword123
+MYSQL_ROOT_PASSWORD=rootpassword123
+
+# ─── WordPress ─────────────────────────────────────────────
+WP_TITLE=My Inception Site
+
+# Admin (must NOT contain 'admin')
+WP_ADMIN_USER=sitemaster
+WP_ADMIN_PASSWORD=adminpass123
+WP_ADMIN_EMAIL=sitemaster@achanek.42.fr
+
+# Regular user
+WP_USER=editor
+WP_USER_PASSWORD=editorpass123
+WP_USER_EMAIL=editor@achanek.42.fr
+
+# ─── FTP (Bonus) ───────────────────────────────────────────
+FTP_USER=ftpuser
+FTP_PASSWORD=ftppass123
+
+# ─── Grafana (Bonus) ───────────────────────────────────────
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=grafanapass123
+EOF
+```
+
+Verify it was created correctly:
+```bash
+cat srcs/.env
+```
+
 ---
 
 ## Check That Services Are Running
@@ -107,7 +148,7 @@ docker exec wordpress wp redis status --allow-root --path=/var/www/html
 
 Check the website responds:
 ```bash
-curl -k https://achanek.42.fr | head -5
+curl -k https://achanek.42.fr
 # Expected: HTML starting with <!DOCTYPE html>
 ```
 

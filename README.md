@@ -120,5 +120,3 @@ Claude (Anthropic) was used throughout this project for the following tasks:
 - **Understanding concepts**: explaining Docker networking, TLS handshakes, FastCGI protocol, PHP-FPM pool configuration, MariaDB initialization, and Redis object caching
 - **Script review**: reviewing and correcting shell scripts (`init_db.sh`, `setup_wp.sh`, `setup_ftp.sh`) for correctness and edge cases
 - **Documentation**: generating the structure and content of README.md, USER_DOC.md, and DEV_DOC.md in compliance with subject requirements
-
-All generated content was reviewed, tested, and understood before being included in the project.
