@@ -30,7 +30,5 @@ fclean: clean
 status:
 	$(COMPOSE) ps
 
-logs:
-	$(COMPOSE) logs -f
 
-.PHONY: all dirs down re clean fclean status logs
+.PHONY: all dirs down re clean fclean status
